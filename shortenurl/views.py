@@ -1,8 +1,5 @@
-import json
 import re
 
-from django.conf import settings
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from rest_framework.decorators import api_view
@@ -16,9 +13,8 @@ import random
 
 def home(request):
     links = Links.objects.get_active()
-    short_links = []
-    for link in links:
-        short_links.append(request.build_absolute_uri(reverse('navigate_url', kwargs={'surl': link.short_url})))
+    short_links = [request.build_absolute_uri(reverse('navigate_url', kwargs={'surl': link.short_url}))
+                   for link in links]
     context = {"links": short_links}
     return render(request, 'shortenurl/index.html', context)
     # return HttpResponse('My first view.')

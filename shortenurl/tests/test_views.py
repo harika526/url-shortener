@@ -40,7 +40,7 @@ class GetSingleLinkTest(TestCase):
 
     def test_get_valid_single_link(self):
         response = client.get(reverse('get_delete_link', kwargs={'surl': self.bing.short_url}))
-        link = Links.objects.get(pk=self.bing.pk)
+        link = Links.objects.get(short_url=self.bing.short_url)
         serializer = LinksSerializer(link)
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -88,8 +88,52 @@ class DeleteSingleLinkTest(TestCase):
             reverse('get_delete_link', kwargs={'surl': self.youtube.short_url}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_delete_invalid_link(self):
+    def test_delete_valid_link(self):
         response = client.delete(
             reverse('get_delete_link', kwargs={'surl': 30}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DifferentUrlInputsTest(TestCase):
+    """ Tests for different types of url """
+
+    def setUp(self):
+        self.without_scheme = {'main_url': 'www.google.com'}
+        self.without_scheme_www = {'main_url': 'google.com'}
+        self.with_scheme = {'main_url': 'http://google.com'}
+        self.with_scheme_www = {'main_url': 'http://www.google.com'}
+        self.with_scheme_https = {'main_url': 'https://google.com'}
+        self.with_scheme_https_www = {'main_url': 'https://www.google.com'}
+
+    def test_different_inputs(self):
+        response1 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.without_scheme),
+                                content_type='application/json')
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response1.data['main_url'], 'http://google.com')
+
+        response2 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.without_scheme_www),
+                                content_type='application/json')
+        self.assertEqual(response2.status_code, status.HTTP_302_FOUND)
+
+        response3 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.with_scheme),
+                                content_type='application/json')
+        self.assertEqual(response3.status_code, status.HTTP_302_FOUND)
+
+        response4 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.with_scheme_www),
+                                content_type='application/json')
+        self.assertEqual(response4.status_code, status.HTTP_302_FOUND)
+
+        response5 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.with_scheme_https),
+                                content_type='application/json')
+        self.assertEqual(response5.status_code, status.HTTP_302_FOUND)
+
+        response6 = client.post(reverse('get_post_link'),
+                                data=json.dumps(self.with_scheme_https_www),
+                                content_type='application/json')
+        self.assertEqual(response6.status_code, status.HTTP_302_FOUND)
 

@@ -3,7 +3,6 @@ from .models import Links
 from django.conf import settings
 
 
-
 class LinksSerializer(serializers.ModelSerializer):
     full_short_url = serializers.SerializerMethodField()
 
