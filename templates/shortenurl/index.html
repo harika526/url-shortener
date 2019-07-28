@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+<form method="post">
+    {% csrf_token %}
+  <div class="input-group">
+    <input type="text" id="main_url" name="main_url" class="form-control col-sm-9" placeholder="Enter your URL" />
+    <span class="input-group-btn">
+      <button class="btn btn-outline-success" type="submit" id="submit">Shorten</button>
+    </span>
+  </div>
+</form>
+<div class="content">
+    <h5>Shortened URL: <span id="short_url"></span></h5>
+    <hr>
+    <div class="result" id="result">
+        {% if links %}
+            {% for link in links %}
+            <a href={{ link }} target="_blank">{{ link }}</a>
+        <br>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+  console.log("testing javascript")
+  $("#submit").click(function(event){
+  event.preventDefault();
+  text = $("#main_url").val()
+  $.ajax({
+    type : "POST",
+    url : "/api/v1/links/",
+    csrfmiddlewaretoken: "{{ csrf_token }}",
+    data : JSON.stringify({main_url:text}),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+    success: function(data){
+        console.log(data["short_url"]);
+        $("#short_url").empty().append("<a href=\"" + data["full_short_url"] + "\">" + data["full_short_url"] + "</a><br>");
+        $("#result").load(" #result");
+      },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      alert("some error " + String(errorThrown) + String(textStatus) + String(XMLHttpRequest.responseText));
+      }
+    });
+  });
+</script>
+
+{% endblock javascript %}
