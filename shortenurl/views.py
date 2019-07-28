@@ -59,7 +59,6 @@ def get_post_link(request):
     if request.method == 'GET':
         links = Links.objects.get_active()
         serializer = LinksSerializer(links, many=True)
-        # serializer.data["short_url"] = request.build_absolute_uri(reverse('navigate_url', kwargs={'surl': links.short_url}))
         return Response(serializer.data)
 
     # insert a new record
@@ -79,9 +78,6 @@ def get_post_link(request):
             serializer = LinksSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
-                # shortened_url = request.build_absolute_uri(reverse('navigate_url', kwargs={'surl': short_code}))
-                # context = serializer.data
-                # context["shortened_url"] = shortened_url
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
