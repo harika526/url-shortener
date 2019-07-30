@@ -2,18 +2,14 @@ body {
   background: #cecece;
 }
 .container {
+  margin: auto;
   margin-top: 2rem;
+  width: 60%;
 }
-.input-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 .content {
   margin-top: 3rem;
-  align: center;
 }
 .result {
   margin-bottom: 1rem;
-  align: center;
 }
